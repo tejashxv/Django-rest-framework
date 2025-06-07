@@ -26,6 +26,9 @@ urlpatterns = [
     path('api/delete_record/<int:id>', delete_record, name='delete_record'),
     path('api/update_record/<int:id>', update_record, name='update_record'),
     path('api/home/', home, name='home'),
+    path('api/createbook/', createbook, name='createbook'),
+    path('api/delete_book/<int:id>', delete_book, name='delete_book'),
+    path('api/get_book/', get_book, name='get_book'),
 ]
 
 
