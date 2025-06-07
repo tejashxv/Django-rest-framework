@@ -31,6 +31,8 @@ def index(request):
 @api_view(['POST'])
 def createrecord(request):
     data = request.data
+    if request.data['age'] < 18:
+        return Response({'error': 'Age must be 18 or older.'}, status=400)
     serializer = StudentSerializer(data=data)
     if not serializer.is_valid():
         return Response(serializer.errors, status=400)
@@ -112,21 +114,26 @@ def update_record(request, id):
 @api_view(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])
 def home(request):
     if request.method == 'GET':
-        data = []
-        for student in Student.objects.all().order_by('-name'):
-            data.append({
-            'id': student.id,
-            'name': student.name,
-            'dob': student.dob,
-            'email': student.email,
-            'phone': student.phone
-        })
+        if request.GET.get('id'):
+            try:
+                student = Student.objects.get(id=request.GET.get('id'))
+                serializer = StudentSerializer(student)
+                return Response({
+                    "data": serializer.data,
+                    'message': 'This is a placeholder for retrieving a single record.',
+                })
+            except Student.DoesNotExist:
+                return Response({'error': 'Record not found.'}, status=404)
+        data = Student.objects.all()
+        serializer = StudentSerializer(data, many=True)
         return Response({
-        "data": data,
+        "data": serializer.data,
         'message': 'This is a placeholder for retrieving records.',
         })
     elif request.method == 'POST':
         data = request.data
+        if request.data['age'] < 18:
+            return Response({'error': 'Age must be 18 or older.'}, status=400)  
         Student.objects.create(**data)
         return Response({
         'message': 'This is a placeholder for creating a record.',
@@ -134,11 +141,15 @@ def home(request):
         })
     elif request.method in ['PUT', 'PATCH']:
         try:
-            student = Student.objects.get(id=request.data.get('id', id))
+            
             data = request.data
-            for key, value in data.items():
-                setattr(student, key, value)
-            student.save()
+            if data.get('id') is None:
+                return Response({'error': 'ID is required for updating a record.'}, status=400)
+            student = Student.objects.get(id=request.data.get('id', id))
+            serializer = StudentSerializer(student, data=data, partial=True)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=400)
+            serializer.save()
             return Response({'message': 'Record updated successfully.'}, status=200)
         except Student.DoesNotExist:                    
             return Response({'error': 'Record not found.'}, status=404)
