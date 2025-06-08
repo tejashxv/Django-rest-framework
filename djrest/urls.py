@@ -29,6 +29,7 @@ urlpatterns = [
     path('api/createbook/', createbook, name='createbook'),
     path('api/delete_book/<int:id>', delete_book, name='delete_book'),
     path('api/get_book/', get_book, name='get_book'),
+    path('api/create_user/', create_user, name='create_user'),
 ]
 
 

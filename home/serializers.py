@@ -86,3 +86,24 @@ class BookSerializer(serializers.Serializer):
         instance.price = price
         instance.save()
         return instance
+    
+    
+    
+    
+    
+class UserSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=100)
+    email = serializers.EmailField()
+    age = serializers.IntegerField()
+    
+    
+    def validate(self, attrs):
+        if attrs.get('age') < 18:
+            raise serializers.ValidationError("Age must be at least 18 years old.")
+        return super().validate(attrs)
+    
+    
+    def validate_email(self, value):
+        if value.split('@')[1] != 'gmail.com':
+            raise serializers.ValidationError("Email domain must be 'example.com'.")
+        return value

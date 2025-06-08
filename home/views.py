@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Student, Book
-from .serializers import StudentSerializer, BookSerializer
+from .serializers import StudentSerializer, BookSerializer, UserSerializer
 # Create your views here.
 
     
@@ -229,3 +229,26 @@ def get_book(request):
         "data": serializer.data,
         'message': 'This is a placeholder for retrieving records.',
      })
+    
+    
+    
+    
+    
+    
+
+@api_view(['POST'])
+def create_user(request):
+    data = request.data
+    
+    serializer = UserSerializer(data=data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=400)
+    # Student.objects.create(**data)
+    print(serializer.validated_data)
+    user = serializer.save()
+    print(user)
+    return Response({
+        'message': 'This is a placeholder for creating a record.',
+        'status': 'success'
+     })
+    
