@@ -95,15 +95,27 @@ class UserSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=100)
     email = serializers.EmailField()
     age = serializers.IntegerField()
-    
+    phone = serializers.RegexField(
+        regex=r'^\+?1?\d{9,15}$',
+        error_messages={
+            'invalid': 'Phone number must be entered in the format: "+999999999". Up to 15 digits allowed.'
+        }
+    )
     
     def validate(self, attrs):
         if attrs.get('age') < 18:
             raise serializers.ValidationError("Age must be at least 18 years old.")
-        return super().validate(attrs)
-    
-    
-    def validate_email(self, value):
-        if value.split('@')[1] != 'gmail.com':
+        if not attrs.get('email').endswith('@example.com'):
             raise serializers.ValidationError("Email domain must be 'example.com'.")
-        return value
+        return attrs    
+    
+    # def validate_age(self, attrs):
+    #     if attrs.get('age') < 18:
+    #         raise serializers.ValidationError("Age must be at least 18 years old.")
+    #     return super().validate(attrs)
+    
+    
+    # def validate_email(self, value):
+    #     if value.split('@')[1] != 'gmail.com':
+    #         raise serializers.ValidationError("Email domain must be 'example.com'.")
+    #     return value
