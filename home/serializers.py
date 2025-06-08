@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import Student, Book
 from datetime import date
 import uuid
+from .validators import *
+
 
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -57,10 +59,13 @@ class StudentSerializer(serializers.ModelSerializer):
         print("Fields in StudentSerializer:", fields)
         return fields
         
-        
+from rest_framework.validators import UniqueValidator
 class BookSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)  
-    title = serializers.CharField(max_length=200)
+    title = serializers.CharField(max_length=200,
+                                  validators=[UniqueValidator(
+                                      queryset=Book.objects.all())
+                                    ])  
     author = serializers.CharField(max_length=100)
     price = serializers.FloatField()
     
@@ -88,12 +93,35 @@ class BookSerializer(serializers.Serializer):
         return instance
     
     
+class AddressSerializer(serializers.Serializer):
+    city = serializers.CharField(max_length=50)
+    zip_code = serializers.CharField(max_length=10)
+    
+    def validate_zip_code(self, value):
+        if not value.isdigit() or len(value) != 5:
+            raise serializers.ValidationError("Zip code must be a 5-digit number.")
+        return value
+    
+    def create(self, validated_data):
+        return {
+            'city': validated_data['city'],
+            'zip_code': validated_data['zip_code']
+        }
     
     
-    
+     
 class UserSerializer(serializers.Serializer):
-    name = serializers.CharField(max_length=100)
-    email = serializers.EmailField()
+    name = serializers.CharField(max_length=100,
+                                validators=[no_numbers],
+                                error_messages={
+                                    'max_length': 'Name must be at most 100 characters long.',
+                                    'required': 'Name is required.'
+                                })
+    email = serializers.EmailField(validators=[email_validator],
+                                  error_messages={
+                                      'invalid': 'Email must be a valid email address.',
+                                      'required': 'Email is required.'
+                                  })
     age = serializers.IntegerField()
     phone = serializers.RegexField(
         regex=r'^\+?1?\d{9,15}$',
@@ -101,12 +129,19 @@ class UserSerializer(serializers.Serializer):
             'invalid': 'Phone number must be entered in the format: "+999999999". Up to 15 digits allowed.'
         }
     )
-    
+    address = AddressSerializer()
+    user_type = serializers.ChoiceField(
+        choices=['admin', 'user', 'guest'])
+    admin_code = serializers.CharField(required=False)
+        
+     
     def validate(self, attrs):
         if attrs.get('age') < 18:
             raise serializers.ValidationError("Age must be at least 18 years old.")
-        if not attrs.get('email').endswith('@example.com'):
+        if not attrs.get('email').endswith('@gmail.com'):
             raise serializers.ValidationError("Email domain must be 'example.com'.")
+        if attrs.get('user_type') == 'admin' and not attrs.get('admin_code'):
+            return serializers.ValidationError("Admin code is required for admin users.")
         return attrs    
     
     # def validate_age(self, attrs):
@@ -119,3 +154,14 @@ class UserSerializer(serializers.Serializer):
     #     if value.split('@')[1] != 'gmail.com':
     #         raise serializers.ValidationError("Email domain must be 'example.com'.")
     #     return value
+    def create(self, validated_data):
+        return {
+            'name': validated_data['name'],
+            'email': validated_data['email'],
+            'age': validated_data['age'],
+            'phone': validated_data['phone']
+        }
+        
+        
+        
+        
