@@ -3,12 +3,10 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Student, Book
-from .serializers import StudentSerializer, BookSerializer, UserSerializer
+from .serializers import StudentSerializer, BookSerializer, UserSerializer,CreateBookSerializer,NewBookSerializer
 # Create your views here.
 
-    
-    
-    
+
 
 
 @api_view(['POST','GET','PUT','PATCH','DELETE'])
@@ -171,7 +169,7 @@ def home(request):
 @api_view(['POST'])
 def createbook(request):
     data = request.data
-    serializer = BookSerializer(data=data)
+    serializer = NewBookSerializer(data=data)
     if not serializer.is_valid():
         return Response(serializer.errors, status=400)
     # Student.objects.create(**data)
@@ -203,8 +201,8 @@ def delete_book(request, id):
 def get_book(request):
     if request.GET.get('id'):
         try:
-            student = Student.objects.get(id=request.GET.get('id'))
-            serializer = StudentSerializer(student)
+            student = Book.objects.get(id=request.GET.get('id'))
+            serializer = NewBookSerializer(student)
             return Response({
                 "data": serializer.data,
                 'message': 'This is a placeholder for retrieving a single record.',
@@ -252,3 +250,13 @@ def create_user(request):
         'status': 'success'
      })
     
+    
+@api_view(['GET'])
+def get_newbook(request):
+    data = Book.objects.all()
+    serializer = NewBookSerializer(data, many=True)
+    return Response({
+        'message': 'This is a placeholder for creating a record.',
+        'status': 'success',
+        'data' : serializer.data
+     })

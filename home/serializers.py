@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Student, Book
+from .models import *
 from datetime import date
 import uuid
 from .validators import *
@@ -132,7 +132,7 @@ class UserSerializer(serializers.Serializer):
     address = AddressSerializer()
     user_type = serializers.ChoiceField(
         choices=['admin', 'user', 'guest'])
-    admin_code = serializers.CharField(required=False)
+    admin_code  = serializers.CharField(required=False)
         
      
     def validate(self, attrs):
@@ -165,3 +165,42 @@ class UserSerializer(serializers.Serializer):
         
         
         
+
+
+class PublisherSerializer(serializers.ModelSerializer):
+     class Meta:
+         model = Publisher
+         fields = '__all__'
+
+class AuthorSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Author 
+        fields = '__all__'
+        
+        
+class CreateBookSerializer(serializers.ModelSerializer):
+    author = serializers.PrimaryKeyRelatedField(queryset = Author.objects.all())
+    publisher = serializers.PrimaryKeyRelatedField(queryset = Publisher.objects.all(), many = True)
+    class Meta:
+        model = Book
+        fields = '__all__'
+        
+        
+class NewBookSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer()
+    publisher = PublisherSerializer(many=True)
+    
+    class Meta:
+        model = Book
+        fields = '__all__'
+    
+    def create(self, validated_data):
+        author = validated_data.pop('author')
+        publisher_data = validated_data.pop('publisher')
+        author,_ = Author.objects.get_or_create(**author)
+        book = Book.objects.create(author=author, **validated_data)
+        for publisher in publisher_data:
+            publisher_obj,_ = Publisher.objects.get_or_create(**publisher)
+            book.publisher.add(publisher_obj)
+        return book
