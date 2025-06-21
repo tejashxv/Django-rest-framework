@@ -31,6 +31,8 @@ urlpatterns = [
     path('api/get_book/', get_book, name='get_book'),
     path('api/create_user/', create_user, name='create_user'),
     path('api/get_newbook/', get_newbook, name='get_newbook'),
+    path('api/v2/students/', StudentAPI.as_view(), name='student_api'),
+    path('api/v3/students/', StudentModelListView.as_view(), name='student_model_list'),
 ]
 
 

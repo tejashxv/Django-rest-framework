@@ -4,9 +4,45 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Student, Book
 from .serializers import StudentSerializer, BookSerializer, UserSerializer,CreateBookSerializer,NewBookSerializer
+from rest_framework.views import APIView 
+from rest_framework.mixins import ListModelMixin
+from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
 # Create your views here.
 
 
+class StudentModelListView(ListModelMixin, GenericAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+
+class StudentAPI(APIView):
+    def get(self, request):
+        try:
+            student = Student.objects.all().order_by('-name')
+            serializer = StudentSerializer(student, many=True)
+            return Response({
+                "data": serializer.data,
+                'message': 'This is a placeholder for retrieving a single record.',
+            })
+        except Student.DoesNotExist:
+            return Response({'error': 'Record not found.'}, status=404)
+        
+    def post(self, request):
+        data = request.data
+        if request.data['age'] < 18:
+            return Response({'error': 'Age must be 18 or older.'}, status=400)
+        serializer = StudentSerializer(data=data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+    # Student.objects.create(**data)
+        serializer.save()
+        return Response({
+        'message': 'This is a placeholder for creating a record.',
+        'status': 'success'
+         })
 
 
 @api_view(['POST','GET','PUT','PATCH','DELETE'])
