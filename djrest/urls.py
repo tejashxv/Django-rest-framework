@@ -33,6 +33,7 @@ urlpatterns = [
     path('api/get_newbook/', get_newbook, name='get_newbook'),
     path('api/v2/students/', StudentAPI.as_view(), name='student_api'),
     path('api/v3/students/', StudentModelListView.as_view(), name='student_model_list'),
+    path('api/v4/students/<pk>', StudentModelListView.as_view(), name='student_model_delete'),
 ]
 
 

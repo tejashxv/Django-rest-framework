@@ -5,17 +5,31 @@ from rest_framework.response import Response
 from .models import Student, Book
 from .serializers import StudentSerializer, BookSerializer, UserSerializer,CreateBookSerializer,NewBookSerializer
 from rest_framework.views import APIView 
-from rest_framework.mixins import ListModelMixin
+from rest_framework.mixins import ListModelMixin, CreateModelMixin, DestroyModelMixin
 from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
 # Create your views here.
 
 
-class StudentModelListView(ListModelMixin, GenericAPIView):
+class StudentModelListView(ListModelMixin, GenericAPIView,CreateModelMixin,DestroyModelMixin):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
 
+    # def get_queryset(self):
+    #     return Student.objects.filter(name__startswith='r')
+    
+    def perform_create(self, serializer):
+        print("perform_create")
+        return super().perform_create(serializer)
+    
+    
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
+    
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
 
 class StudentAPI(APIView):
@@ -43,6 +57,17 @@ class StudentAPI(APIView):
         'message': 'This is a placeholder for creating a record.',
         'status': 'success'
          })
+        
+    def delete(self,request):
+        try:
+            id = request.data.get('id')
+            if id is None:
+                return Response({'error': 'ID is required for deleting a record.'}, status=400)
+            student = Student.objects.get(id=id)
+            student.delete()
+            return Response({'message': 'Record deleted successfully.'}, status=204)
+        except Student.DoesNotExist:
+            return Response({'error': 'Record not found.'}, status=404)
 
 
 @api_view(['POST','GET','PUT','PATCH','DELETE'])
