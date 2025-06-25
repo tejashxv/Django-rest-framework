@@ -9,11 +9,31 @@ from rest_framework.mixins import ListModelMixin, CreateModelMixin, DestroyModel
 from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
 from rest_framework import generics
 from rest_framework import viewsets
+from rest_framework.decorators import action
 
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    
+    @action(detail=False, methods=['POST'])
+    def export_product(self, request):
+        return Response({
+            "status": "success",
+            "message": "This is a placeholder for exporting records.",
+            "data": self.get_queryset().values('name', 'price', 'description')
+        })
+        
+    @action(detail=True, methods=['POST'])
+    def email_sent(self, request, pk):
+        print("email sent", pk)
+        return Response({
+            "status": "success",
+            "message": "This is a placeholder for sending email.",
+            "data": {}
+        })
+    
+    
 # Create your views here. 
 
 class ProductListCreate(generics.ListCreateAPIView, generics.RetrieveUpdateDestroyAPIView):
