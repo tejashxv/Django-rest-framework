@@ -2,13 +2,36 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Student, Book
-from .serializers import StudentSerializer, BookSerializer, UserSerializer,CreateBookSerializer,NewBookSerializer
+from .models import *
+from .serializers import StudentSerializer, BookSerializer, UserSerializer,CreateBookSerializer,NewBookSerializer, ProductSerializer
 from rest_framework.views import APIView 
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, DestroyModelMixin
 from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
-# Create your views here.
+from rest_framework import generics
+from rest_framework import viewsets
 
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+# Create your views here. 
+
+class ProductListCreate(generics.ListCreateAPIView, generics.RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        response.data = {
+            "status": "success",
+            "message": "This is a placeholder for retrieving records.",
+            "data": response.data
+        }
+        return response
+    
+    # def preform_create(self, serializer):
+    #     serializer.save(created_by=self.request.user)
+    #     return super().perform_create(serializer)
 
 class StudentModelListView(ListModelMixin, GenericAPIView,CreateModelMixin,DestroyModelMixin):
     queryset = Student.objects.all()
