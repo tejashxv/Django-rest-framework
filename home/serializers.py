@@ -3,8 +3,40 @@ from .models import *
 from datetime import date
 import uuid
 from .validators import *
+from django.contrib.auth.models import User
 
-
+class RegisterSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=150, validators=[no_numbers])
+    password = serializers.CharField(max_length=128)
+    first_name = serializers.CharField(max_length=30)
+    last_name = serializers.CharField(max_length=150)
+    
+    def validate_username(self, username):
+        if User.objects.filter(username=username).exists():
+            raise serializers.ValidationError("Username already exists.")
+        return username
+    
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            password=validated_data['password'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name']
+        )
+        return user
+    
+    
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=150, validators=[no_numbers])
+    password = serializers.CharField(max_length=128)
+    
+    # def validate(self, attrs):
+    #     if not User.objects.filter(username=attrs['username']).exist():
+    #         return serializers.ValidationError("User does not exist.")
+    #     user = User.objects.get(username=attrs['username'])
+    #     if not user.check_password(attrs['password']):
+    #         return serializers.ValidationError("Incorrect password.")
+    
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:

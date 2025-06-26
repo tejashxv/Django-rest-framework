@@ -3,13 +3,80 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import *
-from .serializers import StudentSerializer, BookSerializer, UserSerializer,CreateBookSerializer,NewBookSerializer, ProductSerializer
+from .serializers import StudentSerializer, BookSerializer, UserSerializer,CreateBookSerializer,NewBookSerializer, ProductSerializer, RegisterSerializer , LoginSerializer
 from rest_framework.views import APIView 
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, DestroyModelMixin
 from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
 from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+
+class RegisterAPI(APIView):
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'message': 'User registered successfully.',
+                'status': 'success',
+                'data': serializer.data
+            })
+        return Response({
+            'error': serializer.errors,
+            'status': 'error'
+            
+        }, status=400)
+        
+    def get(self, request):
+        users = User.objects.all()
+        serializer = RegisterSerializer(users, many=True)
+        return Response({
+            'message': 'This is a placeholder for retrieving all users.',
+            'status': 'success',
+            'data': serializer.data
+        })
+        
+    
+
+class LoginAPI(APIView):
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = authenticate(
+                username=serializer.validated_data['username'],
+                password=serializer.validated_data['password']
+            )
+            
+            if not user:
+                return Response({
+                    'error': 'Invalid credentials.',
+                    'status': 'error'
+                }, status=400)
+            
+            token,create = Token.objects.get_or_create(user=user)
+            
+            
+            
+            return Response({
+                'message': 'User registered successfully.',
+                'status': 'success',
+                'data': serializer.data,
+                "token": token.key
+            })
+        return Response({
+            'error': serializer.errors,
+            'status': 'error'
+            
+        }, status=400)
+
+
+# class LogoutAPI(APIView):
+    
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -39,15 +106,21 @@ class ProductViewSet(viewsets.ModelViewSet):
 class ProductListCreate(generics.ListCreateAPIView, generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    
+    
     def list(self, request, *args, **kwargs):
-        response = super().list(request, *args, **kwargs)
-        response.data = {
-            "status": "success",
-            "message": "This is a placeholder for retrieving records.",
-            "data": response.data
-        }
-        return response
+        print(request.user)
+        return super().list(request, *args, **kwargs)
+    # def list(self, request, *args, **kwargs):
+    #     response = super().list(request, *args, **kwargs)
+    #     response.data = {
+    #         "status": "success",
+    #         "message": "This is a placeholder for retrieving records.",
+    #         "data": response.data
+    #     }
+    #     return response
     
     # def preform_create(self, serializer):
     #     serializer.save(created_by=self.request.user)
