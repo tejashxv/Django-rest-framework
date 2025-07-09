@@ -13,7 +13,7 @@ from rest_framework.decorators import action
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import TokenAuthentication
 
 class RegisterAPI(APIView):
@@ -147,9 +147,10 @@ class StudentModelListView(ListModelMixin, GenericAPIView,CreateModelMixin,Destr
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
+from rest_framework.permissions import IsAdminUser
 
 class StudentAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
     authentication_classes = [TokenAuthentication]
     
     def get(self, request):
