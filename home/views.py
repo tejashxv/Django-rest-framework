@@ -147,11 +147,11 @@ class StudentModelListView(ListModelMixin, GenericAPIView,CreateModelMixin,Destr
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticatedOrReadOnly
 
 class StudentAPI(APIView):
-    permission_classes = [IsAdminUser]
-    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    # authentication_classes = [TokenAuthentication]
     
     def get(self, request):
         try:
