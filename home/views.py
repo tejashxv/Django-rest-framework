@@ -149,6 +149,9 @@ class StudentModelListView(ListModelMixin, GenericAPIView,CreateModelMixin,Destr
 
 
 class StudentAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    
     def get(self, request):
         try:
             student = Student.objects.all().order_by('-name')
