@@ -82,6 +82,8 @@ class LoginAPI(APIView):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
     
     @action(detail=False, methods=['POST'])
     def export_product(self, request):
@@ -441,3 +443,5 @@ def get_newbook(request):
         'status': 'success',
         'data' : serializer.data
      })
+    
+    
