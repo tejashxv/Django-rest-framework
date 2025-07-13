@@ -15,6 +15,8 @@ from django.contrib.auth import authenticate, login, logout
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import TokenAuthentication
+from .permissions import *
+
 
 class RegisterAPI(APIView):
     def post(self, request):
@@ -82,8 +84,13 @@ class LoginAPI(APIView):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [OwnerPermission,IsVIPuser]
     authentication_classes = [TokenAuthentication]
+    
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+        
+    
     
     @action(detail=False, methods=['POST'])
     def export_product(self, request):

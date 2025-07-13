@@ -4,6 +4,13 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 
+class UserExtended(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='extended_profile')
+    is_vip = models.BooleanField(default=False)
+ 
+    def __str__(self):
+        return f"{self.user.username} - VIP: {self.is_vip}"
+
 class Student(models.Model):
     student_id = models.CharField(null=True, blank=True)
     name = models.CharField(max_length=100)
