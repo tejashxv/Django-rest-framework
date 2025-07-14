@@ -1,4 +1,4 @@
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import PageNumberPagination,CursorPagination
 
 
 
@@ -12,3 +12,6 @@ class SmallResultPagination(PageNumberPagination):
     max_page_size = 100
     page_query_param = 'page_size'
     
+class CustomCursorPagination(CursorPagination):
+    page_size = 2
+    ordering = 'id'

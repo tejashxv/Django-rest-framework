@@ -16,6 +16,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import TokenAuthentication
 from .permissions import *
+from utils.pagination import LargeResultPagination, SmallResultPagination, CustomCursorPagination
 
 
 class RegisterAPI(APIView):
@@ -84,8 +85,10 @@ class LoginAPI(APIView):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [OwnerPermission,IsVIPuser]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [OwnerPermission,IsVIPuser]
+    # authentication_classes = [TokenAuthentication]
+    pagination_class = CustomCursorPagination
+    
     
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -452,7 +455,6 @@ def get_newbook(request):
      })
     
     
-from utils.pagination import LargeResultPagination, SmallResultPagination
     
 class AuthorAPI(APIView):
     

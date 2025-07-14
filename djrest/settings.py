@@ -84,9 +84,9 @@ DATABASES = {
 }
 
 
-REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'utils.pagination.SmallResultPagination'
-}
+# REST_FRAMEWORK = {
+#     'DEFAULT_PAGINATION_CLASS': 'utils.pagination.SmallResultPagination'
+# }
 
 
 # REST_FRAMEWORK = {
