@@ -37,6 +37,11 @@ class LoginSerializer(serializers.Serializer):
     #     if not user.check_password(attrs['password']):
     #         return serializers.ValidationError("Incorrect password.")
     
+    
+class AuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Author
+        fields = '__all__'
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:

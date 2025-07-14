@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import *
-from .serializers import StudentSerializer, BookSerializer, UserSerializer,CreateBookSerializer,NewBookSerializer, ProductSerializer, RegisterSerializer , LoginSerializer
+from .serializers import *
 from rest_framework.views import APIView 
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, DestroyModelMixin
 from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
@@ -452,3 +452,13 @@ def get_newbook(request):
      })
     
     
+class AuthorAPI(APIView):
+    
+    def get(self, request):
+        authors = Author.objects.all()
+        serializer = AuthorSerializer(authors, many=True)
+        return Response({
+            'message': 'This is a placeholder for retrieving all authors.',
+            'status': 'success',
+            'data': serializer.data
+        })

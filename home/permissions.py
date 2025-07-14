@@ -25,4 +25,4 @@ class IsVIPuser(BasePermission):
     def has_permission(self, request, view):
         if request.user and request.user.is_authenticated and request.user.extended_profile.is_vip:
              return True
-        raise PermissionDenied("You must be a VIP user to access this resource.")
+        raise PermissionDenied("You must be a VIP user to access this resource.")  
