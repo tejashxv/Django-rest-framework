@@ -84,9 +84,14 @@ DATABASES = {
 }
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'utils.pagination.SmallResultPagination'
+}
+
+
 # REST_FRAMEWORK = {
 #     'DEFAULT_PERMISSION_CLASSES': [
-#         'rest_framework.permissions.IsAuthenticated',
+#         'rest_framework.permissions.qIsAuthenticated',
 #     ]
 # }
 

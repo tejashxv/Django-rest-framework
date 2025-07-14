@@ -452,13 +452,17 @@ def get_newbook(request):
      })
     
     
+from utils.pagination import LargeResultPagination, SmallResultPagination
+    
 class AuthorAPI(APIView):
     
     def get(self, request):
-        authors = Author.objects.all()
-        serializer = AuthorSerializer(authors, many=True)
+        authors = Author.objects.all().order_by('id')
+        paginator = LargeResultPagination()
+        paginated_authors = paginator.paginate_queryset(authors, request)
+        serializer = AuthorSerializer(paginated_authors, many=True)
         return Response({
             'message': 'This is a placeholder for retrieving all authors.',
             'status': 'success',
-            'data': serializer.data
+            'data': paginator.get_paginated_response(serializer.data).data
         })
