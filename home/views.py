@@ -454,17 +454,19 @@ def get_newbook(request):
         'data' : serializer.data
      })
     
-    
+from django.core.paginator import Paginator
+from utils.pagination import paginate
     
 class AuthorAPI(APIView):
     
     def get(self, request):
         authors = Author.objects.all().order_by('id')
-        paginator = LargeResultPagination()
-        paginated_authors = paginator.paginate_queryset(authors, request)
-        serializer = AuthorSerializer(paginated_authors, many=True)
-        return Response({
-            'message': 'This is a placeholder for retrieving all authors.',
-            'status': 'success',
-            'data': paginator.get_paginated_response(serializer.data).data
-        })
+        pagenumber = request.GET.get('page', 1)
+        paginator = Paginator(authors, 10)
+        data = paginate(authors, paginator, pagenumber)
+        
+        # paginator = LargeResultPagination()
+        
+        serializer = AuthorSerializer(data['results'], many=True)
+        data["results"] = serializer.data
+        return Response(data)
