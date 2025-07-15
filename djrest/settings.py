@@ -84,6 +84,16 @@ DATABASES = {
 }
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.ScopedRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'product' : '10/day',
+        'another_scope': '10/day',
+    }
+}
+
 # REST_FRAMEWORK = {
 #     'DEFAULT_PAGINATION_CLASS': 'utils.pagination.SmallResultPagination'
 # }

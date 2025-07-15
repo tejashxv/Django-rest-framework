@@ -17,7 +17,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import TokenAuthentication
 from .permissions import *
 from utils.pagination import LargeResultPagination, SmallResultPagination, CustomCursorPagination
-
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
+from utils.throttle import CustomThrottle
+from rest_framework.throttling import ScopedRateThrottle
 
 class RegisterAPI(APIView):
     def post(self, request):
@@ -88,6 +90,8 @@ class ProductViewSet(viewsets.ModelViewSet):
     # permission_classes = [OwnerPermission,IsVIPuser]
     # authentication_classes = [TokenAuthentication]
     pagination_class = CustomCursorPagination
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'product'
     
     
     def list(self, request, *args, **kwargs):
@@ -458,6 +462,9 @@ from django.core.paginator import Paginator
 from utils.pagination import paginate
     
 class AuthorAPI(APIView):
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'product'
+    
     
     def get(self, request):
         authors = Author.objects.all().order_by('id')
